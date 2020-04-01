@@ -1,0 +1,104 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{ca86b9c5-d1cf-4341-b161-edd0e1fdcbd6}</ProjectGuid>
+    <ProjectHome />
+    <StartupFile>trainer.py</StartupFile>
+    <SearchPath />
+    <WorkingDirectory>.</WorkingDirectory>
+    <OutputPath>.</OutputPath>
+    <ProjectTypeGuids>{888888a0-9f3d-457c-b088-3a5042f75d52}</ProjectTypeGuids>
+    <LaunchProvider>Standard Python launcher</LaunchProvider>
+    <InterpreterId>CondaEnv|CondaEnv|pyt</InterpreterId>
+    <IsWindowsApplication>False</IsWindowsApplication>
+    <CommandLineArguments>PRINT/GPU20 -overwrite -classunitydecay=5e-4 -filterl2scaleloss=5e-4 -filterscalelossanchor=1.0 -lr=0.4 -scalinglr=0.4 -biaslr=0.1 -classlr=0.1 -a=resnet110 -convinitmag=1.0 -scalinginitmag=0.8 -convscaling -exposcaling -inputhasbias -classhasbias -zmi -perchannel -zmg=0.9 -noise=0.1 -nl=relu</CommandLineArguments>
+    <EnableNativeCodeDebugging>False</EnableNativeCodeDebugging>
+    <Environment>CUDA=cuda:2
+TBLOG=F:/TBLOG
+EXPLOGDIR=F:/EXPLOG
+CIFAR10=F:/CIFAR/CIFAR10/
+VS_DEBUG=True</Environment>
+    <DebugStdLib>False</DebugStdLib>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
+  <PropertyGroup>
+    <VisualStudioVersion Condition=" '$(VisualStudioVersion)' == '' ">10.0</VisualStudioVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="ActFunc.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="AttributeDict.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Common.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ConvScalingLayer.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="EuclidNormConvLayer.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FilterEuclideanRescalingLayer.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="InitUtil.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="MinibatchNoiseLayer.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="TorchConfig.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="logger.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ParamUtil.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PerMapBiasLayer.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PerMapRandomScalingLayer.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ScalingLayer.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ResnetBiasScaling.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="resnet.py" />
+    <Compile Include="ResNetOrig.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="SandBox1.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="StdNormLayer.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="TensorBoardLogWriter.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="trainer.py" />
+    <Compile Include="trainerMOD.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="TreluLayer.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="WeightNorm.py">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <InterpreterReference Include="CondaEnv|CondaEnv|pyt" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
+</Project>
