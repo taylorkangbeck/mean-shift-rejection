@@ -772,28 +772,31 @@ def FilterEuclidNormXferToScaling ( WeightsParams, ScalingParams, ExpoScaling=Fa
 
         LayerCount += 1
 
-def ZeroMeanNormaliseGrads ( Params, PerChannel=False, MeanMult=0.99 ) :
+def ZeroMeanNormaliseGrads ( Params, PerChannel=False, MeanMult=0.99 ) :  # MeanMult default should be 10.0
         """
         TODO: conv1x1 and linear has cross channel zmg
         """
-
-        if PerChannel :
-            MeanDims = (2,3)
+        ### DO NO PORT
+        if PerChannel :  # PerChannel should always be 2
+            MeanDims = (2,3)  # Keep eye out for mxnet dim order
         else:
             MeanDims = (1,2,3)
+        ###
 
         # only gradient normalise conv weight params if they have (h,w) spatial dimensions
         for p in Params :
             ThisParam = p[1]
+        ### DO NOT PORT
             if len(ThisParam.shape)==4 :
                 if ThisParam.shape[2:]!=[1,1] :
-                    ParamMeanGrad = torch.mean ( ThisParam.grad, dim=MeanDims, keepdim=True )
+        ###
+                    ParamMeanGrad = torch.mean ( ThisParam.grad, dim=MeanDims, keepdim=True )  # IMPORTANT
                     # CLEAR VERSION
-                    # ThisParam.grad = ThisParam.grad + ( ThisParam.grad - ParamMeanGrad ) * MeanMult
+                    # ThisParam.grad = ThisParam.grad + ( ThisParam.grad - ParamMeanGrad ) * MeanMult  # USE THIS CLEAR VERSION IF MXNET IS EFFICIENT WITH IT
                     # EFFICIENTLY REARRANGED VERSION
-                    ThisParam.grad.data = ThisParam.grad.data * ( 1 + MeanMult ) - ParamMeanGrad * MeanMult
+                    ThisParam.grad.data = ThisParam.grad.data * ( 1 + MeanMult ) - ParamMeanGrad * MeanMult  # IMPORTANT, todo do deepcopy
             else :
-                debug11 = 0
+                debug11 = 0  # DO NOT PORT
 
 def ZeroMeanNormaliseGrads_ORIG ( Params, PerChannel=False, MeanMult=0.99 ) :
         """
@@ -1852,7 +1855,7 @@ def ApplyAllGradientModifications ( ) :
 
     # optionally modify the gradients to be zero mean for convolutional params
     if Globs.ZeroMeanGrad > 0.0 :
-        ZeroMeanNormaliseGrads ( Globs.ConvWeightParams, PerChannel=Globs.PerChannel, MeanMult=Globs.ZeroMeanGrad )
+        ZeroMeanNormaliseGrads ( Globs.ConvWeightParams, PerChannel=Globs.PerChannel, MeanMult=Globs.ZeroMeanGrad )  # ONLY ONE USED, CAN CALL DIRECTLY FROM TRAIN LOOP
 
     # optionally inject noise into the gradients using the rms size of the gradients across the whole filter
     if Globs.WeightNoiseInjectionScale > 0.0 :
@@ -2084,8 +2087,9 @@ def TrainOneEpoch ( train_loader, model, criterion, optimizer, EpochIdx, StatsOu
         AddAllAuxiliaryLosses ( loss )
         optimizer.zero_grad()
         loss.backward()
-        ApplyAllGradientModifications ( )
+        ApplyAllGradientModifications ( )  # IMPORTANT
 
+        ### DO NOT PORT
         if DualMinibatch :
 
             AllConvParams = Globs.ConvWeightParams #+ Globs.ScalingParams 
@@ -2109,12 +2113,13 @@ def TrainOneEpoch ( train_loader, model, criterion, optimizer, EpochIdx, StatsOu
                 # deepcopy the unmodified (i.e. buffered) grads to the existing previous grad storage ( just avoids constant memory management )
                 for ( buf_g, prev_g ) in zip ( GradsBuf, Globs.PrevGrads ) :
                     prev_g[...] = buf_g
+        ###
 
         # perform parameter update step using parameter gradients
         optimizer.step()
 
         # apply all post processing steps to the model e.g. resets and scale transfers
-        ApplyAllModelPostProcessing ()
+        ApplyAllModelPostProcessing ()  # DO NOT PORT
 
         # convert graph outputs to Python floats for recording and display
         #OutputFloat = output.float()
