@@ -8,8 +8,13 @@ def parse_args():
 
 def main():
     args = parse_args()
-    ...
+    train()
 
+def acc(output, label):
+    # output: (batch, num_output) float32 ndarray
+    # label: (batch, ) int32 ndarray
+    return (output.argmax(axis=1) ==
+            label.astype('float32')).mean().asscalar()
 
 def train_one_epoch():
     train_loss, train_acc, valid_acc = 0., 0., 0.
