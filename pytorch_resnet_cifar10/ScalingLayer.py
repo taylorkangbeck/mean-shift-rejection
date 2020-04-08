@@ -34,6 +34,7 @@ class ScalingLayer ( nn.Module) :
         #else :
         #    assert False, "only ndim of 1 or 3 supported"
 
+        # taylor: exponentiated scaling removes negative sign in kernel
         self.UseExpoScaling = UseExpoScaling
 
         # allocate 1D tensor of length in_planes - this is broadcastable to axes=(X,depth,X,X) by setting dimensions of size 1

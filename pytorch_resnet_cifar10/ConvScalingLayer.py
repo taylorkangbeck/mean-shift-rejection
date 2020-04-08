@@ -104,7 +104,7 @@ class ConvScalingLayer ( nn.Module) :
 
         pass
 
-    def forward(self,x):
+    def forward(self,x):  # TODO PORT
         """
         output = conv(x, W*Scaling)
         """
@@ -144,7 +144,7 @@ class ConvScalingLayer ( nn.Module) :
 
             # Scale the kernel
             ScalingView = Scaling.view(ViewShape)
-            ScaledWeights = WeightParam * ScalingView
+            ScaledWeights = WeightParam * ScalingView  # TODO IMPORTANT, reparameterizing the kernel
 
         else :
             # no scaling so plain kernel weights convolution
@@ -174,6 +174,7 @@ class ConvScalingLayer ( nn.Module) :
             ScaledWeights = ScaledWeights * ScalingDraw.view(ViewShape)
 
         # convolution
+        # cheaper than multiplying the activations by scaling
         ret =  torch.nn.functional.conv2d ( x, ScaledWeights, bias=None, stride=self.Stride, padding=self.Padding, dilation=self.Dilation, groups=self.Groups)
 
         return ret

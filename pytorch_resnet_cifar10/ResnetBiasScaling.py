@@ -1,5 +1,5 @@
 '''
-
+TODO PORT THIS FILE (keep noise and batchnorm elements)
 '''
 import torch
 import torch.tensor as T
@@ -253,7 +253,7 @@ class ResBlock(nn.Module):
             ScalingInitPartial = partial(InitUtil.TensorConstantInit, Value=ScalingInitHigh)
 
         # conv layer weight init - if use zmi then init is uniform else Xavier. ZMI removes a lot of the asymmetry in the kernel and normal distribution has too many near zero draws hence uniform distribution
-        if UseZMI :
+        if UseZMI :  # TODO PORT
             ConvWeightInitPartial = partial ( InitUtil.ConvWeightInit, Method=InitUtil.ConvParamUniformInit, UseZMI=UseZMI, UsePerFilterMagBalancing=UsePerFilterMagBalancing, InitMagnitudeScale=ConvInitMagnitudeScale )
             #ConvWeightInitPartial = partial ( InitUtil.ConvWeightInit, Method=InitUtil.ConvParamUniformInit, UseZMI=UseZMI, UsePerFilterMagBalancing=UsePerFilterMagBalancing, InitMaxScale=1.0 )
         else :
@@ -380,6 +380,11 @@ class ResBlock(nn.Module):
             if self.ConvNoiseShift > 0.0 :
                 Layers.append ( HookUpLayer ( name=self.Name+'.noiserelu', module=self.NonLin, input=Layers[-1].Out, tags=['relu'] ) )
             input = Layers[-1].Out
+        """ TODO PORT like this
+        if self.ConvNoiseScale>0.0 :
+            Layers.append ( HookUpLayer ( name=self.Name+'.noise', module=self.noise, input=x, tags=['noise'] ) )
+            input = Layers[-1].Out
+        """
 
         else :
             input = x
@@ -388,11 +393,11 @@ class ResBlock(nn.Module):
             Layers.append ( HookUpLayer ( name=self.Name+'.conv1_prebias', module=self.conv1_prebias, input=Layers[-1].Out, tags=['prebias'] ) )
         # conv layer 1
         Layers.append ( HookUpLayer ( name=self.Name+'.conv1', module=self.conv1, input=Layers[-1].Out, tags=['conv'] ) )
-        if self.HasActivationEuclidNorm :   # optionally apply activation normalization
+        if self.HasActivationEuclidNorm :   # optionally apply activation normalization  # DONT NEED
             Layers.append ( HookUpLayer ( name='an1', module=LambdaLayer(ActFunc.ChannelEuclidNorm), input=Layers[-1].Out, tags=['an'] ) )
-        if self.HasBatchNorm :
+        if self.HasBatchNorm :  # TODO PORT
             Layers.append ( HookUpLayer ( name=self.Name+'.bn1', module=self.bn1, input=Layers[-1].Out, tags=['bn'] ) )
-        if self.HasBias :
+        if self.HasBias :  # USE INBUILT CONV LAYER BIAS
             Layers.append ( HookUpLayer ( name=self.Name+'.conv1_bias', module=self.conv1_bias, input=Layers[-1].Out, tags=['bias'] ) )
         if self.HasScaling :
             Layers.append ( HookUpLayer ( name=self.Name+'.conv1_scaling', module=self.conv1_scaling, input=Layers[-1].Out, tags=['scaling'] ) )
@@ -518,7 +523,7 @@ class ResNet(nn.Module):
                     UseBatchNorm                = False,
                     ScalingInitLow              = 1.0,
                     ScalingInitHigh             = 1.0,
-                    HasBias                     = False,
+                    HasBias                     = False,  # TODO PORT
                     InputHasBias                = False,
                     ClassHasBias                = False,
                     HasScaling                  = False,
@@ -533,9 +538,9 @@ class ResNet(nn.Module):
                     UseZMI                      = False,
                     HasPreBias                  = False,
                     ClassHasScaling             = False,
-                    ConvNoiseScale              = 0.0,
-                    ConvNoiseShift              = 0.0,
-                    ConvNoiseMode               = 'full',
+                    ConvNoiseScale              = 0.0,  # TODO PORT
+                    ConvNoiseShift              = 0.0,  # don't need
+                    ConvNoiseMode               = 'full',  # TODO PORT
                     UseResBlockInpuNoise        = False,
                     Conv1Noise                  = False,
                     Conv2Noise                  = False,

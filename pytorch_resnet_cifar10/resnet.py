@@ -68,7 +68,7 @@ def _weights_init(m):
             init.kaiming_normal_ ( m.weight, mode='fan_out', nonlinearity='relu' )
         elif WEIGHT_INIT=='WEIGHT_INIT_XAVIER' :
             init.xavier_normal_(m.weight)
-        elif WEIGHT_INIT=='WEIGHT_INIT_NORMAL_RUFF1' :
+        elif WEIGHT_INIT=='WEIGHT_INIT_NORMAL_RUFF1' :  # TODO PORT
             # uniform distribution of range -0.5 to +0.5 has area of 1 noting that in comparison to He and Xavier they have much smaller values in general
             init.uniform(m.weight, a=-0.5, b=0.5)
         else :
