@@ -4,7 +4,7 @@
 import matplotlib
 matplotlib.use('Agg')
 
-import argparse, time, logging
+import argparse, time, logging, sys
 
 import numpy as np
 import mxnet as mx
@@ -20,9 +20,11 @@ from gluoncv.model_zoo import get_model
 from gluoncv.utils import makedirs, TrainingHistory
 from gluoncv.data import transforms as gcv_transforms
 
+from tqdm import tqdm_notebook as tqdm
+
 # CLI
 def parse_args():
-    parser = argparse.ArgumentParser(description='Train a model for image classification.')
+    parser = argparse.ArgumentParser(description='ResNets with Mean Shift Rejection (mxnet)')
     parser.add_argument('--batch-size', type=int, default=32,
                         help='training batch size per device (CPU/GPU).')
     parser.add_argument('--num-gpus', type=int, default=0,
@@ -57,13 +59,16 @@ def parse_args():
                         help='resume training from the model')
     parser.add_argument('--save-plot-dir', type=str, default='.',
                         help='the path to save the history plot')
+    parser.add_argument('--save-on-quit', type=str, default=True,
+                        help='Save model params before exiting when the training loop is interrupted')
+    parser.add_argument('--zmg', type=float, default='0.', help='ZMG value')
+
+
     opt = parser.parse_args()
     return opt
 
 
-def main():
-    opt = parse_args()
-
+def main(opt):
     batch_size = opt.batch_size
     classes = 10
 
@@ -112,6 +117,12 @@ def main():
     ])
 
     def test(ctx, val_data):
+        """
+        Evaluates net on test metric (Accuracy)
+        :param ctx:
+        :param val_data:
+        :return: (name, value)
+        """
         metric = mx.metric.Accuracy()
         for i, batch in enumerate(val_data):
             data = gluon.utils.split_and_load(batch[0], ctx_list=ctx, batch_axis=0)
@@ -119,6 +130,27 @@ def main():
             outputs = [net(X) for X in data]
             metric.update(label, outputs)
         return metric.get()
+
+    def zmg_norm(ctx, mean_mult=10.):
+        """
+        Normalize the net's conv params' gradients to maintain a channel-wise zero mean
+        :param ctx: mxnet context
+        :param mean_mult:
+        """
+        if opt.zmg > 0.:
+            # TODO verify dims!
+            mean_dims = (2,3)  # per-channel mean
+            param_dict = net.collect_params()
+            for param_name in param_dict:
+                if '_conv' and '_weight' in param_name:  # only modify grads of conv weights
+                    param = param_dict[param_name]
+                    # Only manipulate gradients in the given context
+                    ctx_indices = [param.list_ctx().index(c) for c in ctx]
+                    for i, grad in enumerate(param._grad):
+                        if i in ctx_indices:
+                            param_mean_grad = grad.mean(axis=mean_dims, keepdims=True,
+                                                        name='param_mean_grad')  # IMPORTANT
+                            param._grad[i] = grad + (grad - param_mean_grad) * mean_mult
 
     def train(epochs, ctx):
         if isinstance(ctx, mx.Context):
@@ -145,49 +177,58 @@ def main():
 
         best_val_score = 0
 
-        for epoch in range(epochs):
-            tic = time.time()
-            train_metric.reset()
-            metric.reset()
-            train_loss = 0
-            num_batch = len(train_data)
-            alpha = 1
+        for epoch in tqdm(range(epochs), desc='Epochs'):
+            try:
+                tic = time.time()
+                train_metric.reset()
+                metric.reset()
+                train_loss = 0
+                num_batch = len(train_data)
+                alpha = 1
 
-            if epoch == lr_decay_epoch[lr_decay_count]:
-                trainer.set_learning_rate(trainer.learning_rate*lr_decay)
-                lr_decay_count += 1
+                if epoch == lr_decay_epoch[lr_decay_count]:
+                    trainer.set_learning_rate(trainer.learning_rate*lr_decay)
+                    lr_decay_count += 1
 
-            for i, batch in enumerate(train_data):
-                data = gluon.utils.split_and_load(batch[0], ctx_list=ctx, batch_axis=0)
-                label = gluon.utils.split_and_load(batch[1], ctx_list=ctx, batch_axis=0)
+                for i, batch in enumerate(tqdm(train_data, desc='Batches')):
+                    data = gluon.utils.split_and_load(batch[0], ctx_list=ctx, batch_axis=0)
+                    label = gluon.utils.split_and_load(batch[1], ctx_list=ctx, batch_axis=0)
 
-                with ag.record():
-                    output = [net(X) for X in data]
-                    loss = [loss_fn(yhat, y) for yhat, y in zip(output, label)]
-                for l in loss:
-                    l.backward()
-                trainer.step(batch_size)
-                train_loss += sum([l.sum().asscalar() for l in loss])
+                    with ag.record():
+                        output = [net(X) for X in data]
+                        loss = [loss_fn(yhat, y) for yhat, y in zip(output, label)]
+                    for l in loss:
+                        l.backward()
+                    zmg_norm(ctx)
+                    trainer.step(batch_size)
+                    train_loss += sum([l.sum().asscalar() for l in loss])
 
-                train_metric.update(label, output)
+                    train_metric.update(label, output)
+                    name, acc = train_metric.get()
+                    iteration += 1
+
+                train_loss /= batch_size * num_batch
                 name, acc = train_metric.get()
-                iteration += 1
+                name, val_acc = test(ctx, val_data)
+                train_history.update([1-acc, 1-val_acc])
+                train_history.plot(save_path='%s/%s_history.png'%(plot_path, model_name))
 
-            train_loss /= batch_size * num_batch
-            name, acc = train_metric.get()
-            name, val_acc = test(ctx, val_data)
-            train_history.update([1-acc, 1-val_acc])
-            train_history.plot(save_path='%s/%s_history.png'%(plot_path, model_name))
+                if val_acc > best_val_score:
+                    best_val_score = val_acc
+                    net.save_parameters('%s/%.4f-cifar-%s-%d-best.params'%(save_dir, best_val_score, model_name, epoch))
 
-            if val_acc > best_val_score:
-                best_val_score = val_acc
-                net.save_parameters('%s/%.4f-cifar-%s-%d-best.params'%(save_dir, best_val_score, model_name, epoch))
+                logging.info('[Epoch %d] train=%f val=%f loss=%f time: %f' %
+                    (epoch, acc, val_acc, train_loss, time.time()-tic))
 
-            logging.info('[Epoch %d] train=%f val=%f loss=%f time: %f' %
-                (epoch, acc, val_acc, train_loss, time.time()-tic))
-
-            if save_period and save_dir and (epoch + 1) % save_period == 0:
-                net.save_parameters('%s/cifar10-%s-%d.params'%(save_dir, model_name, epoch))
+                if save_period and save_dir and (epoch + 1) % save_period == 0:
+                    net.save_parameters('%s/cifar10-%s-%d.params'%(save_dir, model_name, epoch))
+            except KeyboardInterrupt as ki:
+                if opt.save_on_quit:
+                    logging.info(f'Interrupted, saving model at epoch {epoch}')
+                    net.save_parameters('%s/cifar10-%s-%d-interrupt.params' % (save_dir, model_name, epoch))
+                else:
+                    logging.info('Interrupted!')
+                break
 
         if save_period and save_dir:
             net.save_parameters('%s/cifar10-%s-%d.params'%(save_dir, model_name, epochs-1))
@@ -199,4 +240,6 @@ def main():
     train(opt.num_epochs, context)
 
 if __name__ == '__main__':
-    main()
+    from tqdm import tqdm
+    _opt = parse_args()
+    main(_opt)
