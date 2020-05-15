@@ -9,3 +9,5 @@ The following files were taken from https://github.com/apache/incubator-mxnet/tr
 * inception.py
 * mobilenet.py
 * vgg.py
+
+Note: `__init__.py` contains the get_model() function
