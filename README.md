@@ -4,6 +4,7 @@
  * This is the entry point. Currently hard-coded for the cifar100 dataset (will automatically download to `~/.mxnet/datasets`), but should be swap out
  * Make note of the various cmd line args
  * I implemented `zmg_norm()`, which should apply ZMG to the gradients when `--zmg` > 0, but I have yet to validate that it works.
+ * Feel free to remove the transforms or any other code that you don't like. Most of this was taken from the mxnet docs.
 
 `environment.yml`
 * The conda environment I used to run this code
