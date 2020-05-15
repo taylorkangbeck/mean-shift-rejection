@@ -22,11 +22,11 @@ __all__ = ['DenseNet', 'densenet121', 'densenet161', 'densenet169', 'densenet201
 
 import os
 
-from ....context import cpu
-from ...block import HybridBlock
-from ... import nn
-from ...contrib.nn import HybridConcurrent, Identity
-from .... import base
+from mxnet.context import cpu
+from mxnet.gluon.block import HybridBlock
+from mxnet.gluon import nn
+from mxnet.gluon.contrib.nn import HybridConcurrent, Identity
+from mxnet import base
 
 # Helpers
 def _make_dense_block(num_layers, bn_size, growth_rate, dropout, stage_index):
@@ -141,7 +141,7 @@ def get_densenet(num_layers, pretrained=False, ctx=cpu(),
     num_init_features, growth_rate, block_config = densenet_spec[num_layers]
     net = DenseNet(num_init_features, growth_rate, block_config, **kwargs)
     if pretrained:
-        from ..model_store import get_model_file
+        from gluoncv.model_zoo.model_store import get_model_file
         net.load_parameters(get_model_file('densenet%d'%(num_layers), root=root), ctx=ctx)
     return net
 

@@ -4,38 +4,38 @@
 import matplotlib
 matplotlib.use('Agg')
 
-import argparse, time, logging, sys
+import argparse, time, logging
 
 import numpy as np
 import mxnet as mx
 
-from mxnet import gluon, nd
+from mxnet import gluon
 from mxnet import autograd as ag
-from mxnet.gluon import nn
 from mxnet.gluon.data.vision import transforms
 
 import gluoncv as gcv
 gcv.utils.check_version('0.6.0')
-from gluoncv.model_zoo import get_model
+from models import get_model
 from gluoncv.utils import makedirs, TrainingHistory
 from gluoncv.data import transforms as gcv_transforms
 
-from tqdm import tqdm_notebook as tqdm
+from tqdm import tqdm
+
 
 # CLI
 def parse_args():
     parser = argparse.ArgumentParser(description='ResNets with Mean Shift Rejection (mxnet)')
-    parser.add_argument('--batch-size', type=int, default=32,
+    parser.add_argument('--batch-size', type=int, default=128,
                         help='training batch size per device (CPU/GPU).')
-    parser.add_argument('--num-gpus', type=int, default=0,
+    parser.add_argument('--num-gpus', type=int, default=1,
                         help='number of gpus to use.')
-    parser.add_argument('--model', type=str, default='resnet',
+    parser.add_argument('--model', type=str, default='resnet50_v1b',
                         help='model to use. options are resnet and wrn. default is resnet.')
     parser.add_argument('-j', '--num-data-workers', dest='num_workers', default=4, type=int,
                         help='number of preprocessing workers')
-    parser.add_argument('--num-epochs', type=int, default=3,
+    parser.add_argument('--num-epochs', type=int, default=200,
                         help='number of training epochs.')
-    parser.add_argument('--lr', type=float, default=0.1,
+    parser.add_argument('--lr', type=float, default=0.6,
                         help='learning rate. default is 0.1.')
     parser.add_argument('--momentum', type=float, default=0.9,
                         help='momentum value for optimizer, default is 0.9.')
@@ -50,7 +50,7 @@ def parse_args():
     parser.add_argument('--drop-rate', type=float, default=0.0,
                         help='dropout rate for wide resnet. default is 0.')
     parser.add_argument('--mode', type=str,
-                        help='mode in which to train the model. options are imperative, hybrid')
+                        help='mode in which to train the model. options are imperative, hybrid', default='hybrid')
     parser.add_argument('--save-period', type=int, default=10,
                         help='period in epoch of model saving.')
     parser.add_argument('--save-dir', type=str, default='params',
@@ -89,7 +89,7 @@ def main(opt):
     net = get_model(model_name, **kwargs)
     if opt.resume_from:
         net.load_parameters(opt.resume_from, ctx = context)
-    optimizer = 'nag'
+    optimizer = 'sgd'
 
     save_period = opt.save_period
     if opt.save_dir and save_period:
@@ -158,11 +158,11 @@ def main(opt):
         net.initialize(mx.init.Xavier(), ctx=ctx)
 
         train_data = gluon.data.DataLoader(
-            gluon.data.vision.CIFAR10(train=True).transform_first(transform_train),
+            gluon.data.vision.CIFAR100(train=True).transform_first(transform_train),
             batch_size=batch_size, shuffle=True, last_batch='discard', num_workers=num_workers)
 
         val_data = gluon.data.DataLoader(
-            gluon.data.vision.CIFAR10(train=False).transform_first(transform_test),
+            gluon.data.vision.CIFAR100(train=False).transform_first(transform_test),
             batch_size=batch_size, shuffle=False, num_workers=num_workers)
 
         trainer = gluon.Trainer(net.collect_params(), optimizer,
@@ -233,13 +233,11 @@ def main(opt):
         if save_period and save_dir:
             net.save_parameters('%s/cifar10-%s-%d.params'%(save_dir, model_name, epochs-1))
 
-
-
     if opt.mode == 'hybrid':
         net.hybridize()
     train(opt.num_epochs, context)
 
+
 if __name__ == '__main__':
-    from tqdm import tqdm
     _opt = parse_args()
     main(_opt)

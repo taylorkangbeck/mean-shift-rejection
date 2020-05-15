@@ -28,11 +28,12 @@ __all__ = ['ResNetV1', 'ResNetV2',
 
 import os
 
-from ....context import cpu
-from ...block import HybridBlock
-from ... import nn
-from .... import base
-from .... util import is_np_array
+from mxnet.context import cpu
+from mxnet.gluon.block import HybridBlock
+from mxnet.gluon import nn
+from mxnet.gluon.nn import BatchNorm
+from mxnet import base
+from mxnet.util import is_np_array
 
 # Helpers
 def _conv3x3(channels, stride, in_channels):
@@ -390,7 +391,7 @@ def get_resnet(version, num_layers, pretrained=False, ctx=cpu(),
     block_class = resnet_block_versions[version-1][block_type]
     net = resnet_class(block_class, layers, channels, **kwargs)
     if pretrained:
-        from ..model_store import get_model_file
+        from gluoncv.model_zoo.model_store import get_model_file
         net.load_parameters(get_model_file('resnet%d_v%d'%(num_layers, version),
                                            root=root), ctx=ctx)
     return net

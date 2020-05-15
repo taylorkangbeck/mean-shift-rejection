@@ -21,12 +21,11 @@
 __all__ = ['Inception3', 'inception_v3']
 
 import os
-
-from ....context import cpu
-from ...block import HybridBlock
-from ... import nn
-from ...contrib.nn import HybridConcurrent
-from .... import base
+from mxnet.context import cpu
+from mxnet.gluon.block import HybridBlock
+from mxnet.gluon import nn
+from mxnet.gluon.contrib.nn import HybridConcurrent
+from mxnet import base
 
 # Helpers
 def _make_basic_conv(**kwargs):
@@ -216,6 +215,6 @@ def inception_v3(pretrained=False, ctx=cpu(),
     """
     net = Inception3(**kwargs)
     if pretrained:
-        from ..model_store import get_model_file
+        from gluoncv.model_zoo.model_store import get_model_file
         net.load_parameters(get_model_file('inceptionv3', root=root), ctx=ctx)
     return net

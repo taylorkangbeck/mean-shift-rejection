@@ -27,10 +27,10 @@ __modified_date__ = '18/04/18'
 
 import os
 
-from ... import nn
-from ....context import cpu
-from ...block import HybridBlock
-from .... import base
+from mxnet.context import cpu
+from mxnet.gluon.block import HybridBlock
+from mxnet.gluon import nn
+from mxnet import base
 
 
 # Helpers
@@ -210,7 +210,7 @@ def get_mobilenet(multiplier, pretrained=False, ctx=cpu(),
     net = MobileNet(multiplier, **kwargs)
 
     if pretrained:
-        from ..model_store import get_model_file
+        from gluoncv.model_zoo.model_store import get_model_file
         version_suffix = '{0:.2f}'.format(multiplier)
         if version_suffix in ('1.00', '0.50'):
             version_suffix = version_suffix[:-1]
@@ -242,7 +242,7 @@ def get_mobilenet_v2(multiplier, pretrained=False, ctx=cpu(),
     net = MobileNetV2(multiplier, **kwargs)
 
     if pretrained:
-        from ..model_store import get_model_file
+        from gluoncv.model_zoo.model_store import get_model_file
         version_suffix = '{0:.2f}'.format(multiplier)
         if version_suffix in ('1.00', '0.50'):
             version_suffix = version_suffix[:-1]

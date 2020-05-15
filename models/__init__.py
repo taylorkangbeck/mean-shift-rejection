@@ -81,6 +81,8 @@ from .inception import *
 
 from .resnet import *
 
+from .resnetv1b import *
+
 #from .squeezenet import *
 
 from .vgg import *
@@ -114,6 +116,25 @@ def get_model(name, **kwargs):
               'resnet50_v1': resnet50_v1,
               'resnet101_v1': resnet101_v1,
               'resnet152_v1': resnet152_v1,
+              'resnet18_v1b': resnet18_v1b,
+              'resnet34_v1b': resnet34_v1b,
+              'resnet50_v1b': resnet50_v1b,
+              'resnet50_v1b_gn': resnet50_v1b_gn,
+              'resnet101_v1b_gn': resnet101_v1b_gn,
+              'resnet101_v1b': resnet101_v1b,
+              'resnet152_v1b': resnet152_v1b,
+              'resnet50_v1c': resnet50_v1c,
+              'resnet101_v1c': resnet101_v1c,
+              'resnet152_v1c': resnet152_v1c,
+              'resnet50_v1d': resnet50_v1d,
+              'resnet101_v1d': resnet101_v1d,
+              'resnet152_v1d': resnet152_v1d,
+              'resnet50_v1e': resnet50_v1e,
+              'resnet101_v1e': resnet101_v1e,
+              'resnet152_v1e': resnet152_v1e,
+              'resnet50_v1s': resnet50_v1s,
+              'resnet101_v1s': resnet101_v1s,
+              'resnet152_v1s': resnet152_v1s,
               'resnet18_v2': resnet18_v2,
               'resnet34_v2': resnet34_v2,
               'resnet50_v2': resnet50_v2,
