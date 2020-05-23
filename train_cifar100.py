@@ -221,17 +221,17 @@ def main(opt):
                     (epoch, acc, val_acc, train_loss, time.time()-tic))
 
                 if save_period and save_dir and (epoch + 1) % save_period == 0:
-                    net.save_parameters('%s/cifar10-%s-%d.params'%(save_dir, model_name, epoch))
+                    net.save_parameters('%s/cifar100-%s-%d.params'%(save_dir, model_name, epoch))
             except KeyboardInterrupt as ki:
                 if opt.save_on_quit:
                     logging.info(f'Interrupted, saving model at epoch {epoch}')
-                    net.save_parameters('%s/cifar10-%s-%d-interrupt.params' % (save_dir, model_name, epoch))
+                    net.save_parameters('%s/cifar100-%s-%d-interrupt.params' % (save_dir, model_name, epoch))
                 else:
                     logging.info('Interrupted!')
                 break
 
         if save_period and save_dir:
-            net.save_parameters('%s/cifar10-%s-%d.params'%(save_dir, model_name, epochs-1))
+            net.save_parameters('%s/cifar100-%s-%d.params'%(save_dir, model_name, epochs-1))
 
     if opt.mode == 'hybrid':
         net.hybridize()
