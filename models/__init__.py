@@ -74,20 +74,19 @@ The transformation should preferrably happen at preprocessing. You can use
 """
 
 #from .alexnet import *
-
 from .densenet import *
-
 from .inception import *
-
 from .resnet import *
-
 from .resnetv1b import *
-
 #from .squeezenet import *
-
 from .vgg import *
-
 from .mobilenet import *
+from .cifar.cifarresnet import *
+from .cifar.cifarresnext import *
+from .cifar.cifarwideresnet import *
+from .deeplabv3 import *
+from .deeplabv3b_plus import *
+from .xception import *
 
 
 def get_model(name, **kwargs):
@@ -111,60 +110,87 @@ def get_model(name, **kwargs):
     gluon.HybridBlock
         The model.
     """
-    models = {'resnet18_v1': resnet18_v1,
-              'resnet34_v1': resnet34_v1,
-              'resnet50_v1': resnet50_v1,
-              'resnet101_v1': resnet101_v1,
-              'resnet152_v1': resnet152_v1,
-              'resnet18_v1b': resnet18_v1b,
-              'resnet34_v1b': resnet34_v1b,
-              'resnet50_v1b': resnet50_v1b,
-              'resnet50_v1b_gn': resnet50_v1b_gn,
-              'resnet101_v1b_gn': resnet101_v1b_gn,
-              'resnet101_v1b': resnet101_v1b,
-              'resnet152_v1b': resnet152_v1b,
-              'resnet50_v1c': resnet50_v1c,
-              'resnet101_v1c': resnet101_v1c,
-              'resnet152_v1c': resnet152_v1c,
-              'resnet50_v1d': resnet50_v1d,
-              'resnet101_v1d': resnet101_v1d,
-              'resnet152_v1d': resnet152_v1d,
-              'resnet50_v1e': resnet50_v1e,
-              'resnet101_v1e': resnet101_v1e,
-              'resnet152_v1e': resnet152_v1e,
-              'resnet50_v1s': resnet50_v1s,
-              'resnet101_v1s': resnet101_v1s,
-              'resnet152_v1s': resnet152_v1s,
-              'resnet18_v2': resnet18_v2,
-              'resnet34_v2': resnet34_v2,
-              'resnet50_v2': resnet50_v2,
-              'resnet101_v2': resnet101_v2,
-              'resnet152_v2': resnet152_v2,
-              'vgg11': vgg11,
-              'vgg13': vgg13,
-              'vgg16': vgg16,
-              'vgg19': vgg19,
-              'vgg11_bn': vgg11_bn,
-              'vgg13_bn': vgg13_bn,
-              'vgg16_bn': vgg16_bn,
-              'vgg19_bn': vgg19_bn,
-#              'alexnet': alexnet,
-              'densenet121': densenet121,
-              'densenet161': densenet161,
-              'densenet169': densenet169,
-              'densenet201': densenet201,
-#              'squeezenet1.0': squeezenet1_0,
-#              'squeezenet1.1': squeezenet1_1,
-              'inceptionv3': inception_v3,
-              'mobilenet1.0': mobilenet1_0,
-              'mobilenet0.75': mobilenet0_75,
-              'mobilenet0.5': mobilenet0_5,
-              'mobilenet0.25': mobilenet0_25,
-              'mobilenetv2_1.0': mobilenet_v2_1_0,
-              'mobilenetv2_0.75': mobilenet_v2_0_75,
-              'mobilenetv2_0.5': mobilenet_v2_0_5,
-              'mobilenetv2_0.25': mobilenet_v2_0_25
-             }
+    models = {
+        'resnet18_v1': resnet18_v1,
+        'resnet34_v1': resnet34_v1,
+        'resnet50_v1': resnet50_v1,
+        'resnet101_v1': resnet101_v1,
+        'resnet152_v1': resnet152_v1,
+        'resnet18_v1b': resnet18_v1b,
+        'resnet34_v1b': resnet34_v1b,
+        'resnet50_v1b': resnet50_v1b,
+        'resnet50_v1b_gn': resnet50_v1b_gn,
+        'resnet101_v1b_gn': resnet101_v1b_gn,
+        'resnet101_v1b': resnet101_v1b,
+        'resnet152_v1b': resnet152_v1b,
+        'resnet50_v1c': resnet50_v1c,
+        'resnet101_v1c': resnet101_v1c,
+        'resnet152_v1c': resnet152_v1c,
+        'resnet50_v1d': resnet50_v1d,
+        'resnet101_v1d': resnet101_v1d,
+        'resnet152_v1d': resnet152_v1d,
+        'resnet50_v1e': resnet50_v1e,
+        'resnet101_v1e': resnet101_v1e,
+        'resnet152_v1e': resnet152_v1e,
+        'resnet50_v1s': resnet50_v1s,
+        'resnet101_v1s': resnet101_v1s,
+        'resnet152_v1s': resnet152_v1s,
+        'resnet18_v2': resnet18_v2,
+        'resnet34_v2': resnet34_v2,
+        'resnet50_v2': resnet50_v2,
+        'resnet101_v2': resnet101_v2,
+        'resnet152_v2': resnet152_v2,
+        'vgg11': vgg11,
+        'vgg13': vgg13,
+        'vgg16': vgg16,
+        'vgg19': vgg19,
+        'vgg11_bn': vgg11_bn,
+        'vgg13_bn': vgg13_bn,
+        'vgg16_bn': vgg16_bn,
+        'vgg19_bn': vgg19_bn,
+        #              'alexnet': alexnet,
+        'densenet121': densenet121,
+        'densenet161': densenet161,
+        'densenet169': densenet169,
+        'densenet201': densenet201,
+        #              'squeezenet1.0': squeezenet1_0,
+        #              'squeezenet1.1': squeezenet1_1,
+        'inceptionv3': inception_v3,
+        'mobilenet1.0': mobilenet1_0,
+        'mobilenet0.75': mobilenet0_75,
+        'mobilenet0.5': mobilenet0_5,
+        'mobilenet0.25': mobilenet0_25,
+        'mobilenetv2_1.0': mobilenet_v2_1_0,
+        'mobilenetv2_0.75': mobilenet_v2_0_75,
+        'mobilenetv2_0.5': mobilenet_v2_0_5,
+        'mobilenetv2_0.25': mobilenet_v2_0_25,
+        'cifar_resnet20_v1': cifar_resnet20_v1,
+        'cifar_resnet56_v1': cifar_resnet56_v1,
+        'cifar_resnet110_v1': cifar_resnet110_v1,
+        'cifar_resnet20_v2': cifar_resnet20_v2,
+        'cifar_resnet56_v2': cifar_resnet56_v2,
+        'cifar_resnet110_v2': cifar_resnet110_v2,
+        'cifar_wideresnet16_10': cifar_wideresnet16_10,
+        'cifar_wideresnet28_10': cifar_wideresnet28_10,
+        'cifar_wideresnet40_8': cifar_wideresnet40_8,
+        'cifar_resnext29_32x4d': cifar_resnext29_32x4d,
+        'cifar_resnext29_16x64d': cifar_resnext29_16x64d,
+        'deeplab_resnet101_coco': get_deeplab_resnet101_coco,
+        'deeplab_resnet101_voc': get_deeplab_resnet101_voc,
+        'deeplab_resnet152_coco': get_deeplab_resnet152_coco,
+        'deeplab_resnet152_voc': get_deeplab_resnet152_voc,
+        'deeplab_resnet50_ade': get_deeplab_resnet50_ade,
+        'deeplab_resnet101_ade': get_deeplab_resnet101_ade,
+        'deeplab_resnest50_ade': get_deeplab_resnest50_ade,
+        'deeplab_resnest101_ade': get_deeplab_resnest101_ade,
+        'deeplab_resnest200_ade': get_deeplab_resnest200_ade,
+        'deeplab_resnest269_ade': get_deeplab_resnest269_ade,
+        'deeplab_resnet50_citys': get_deeplab_resnet50_citys,
+        'deeplab_resnet101_citys': get_deeplab_resnet101_citys,
+        'deeplab_v3b_plus_wideresnet_citys': get_deeplab_v3b_plus_wideresnet_citys,
+        'xception': get_xcetption,
+        'xception71': get_xcetption_71,
+    }
     name = name.lower()
     if name not in models:
         raise ValueError(
