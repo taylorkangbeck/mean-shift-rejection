@@ -4,8 +4,8 @@ from mxnet.gluon import nn
 from mxnet.context import cpu
 from mxnet.gluon.nn import HybridBlock
 from mxnet import gluon
-from .segbase import SegBaseModel
-from .fcn import _FCNHead
+from gluoncv.model_zoo.segbase import SegBaseModel
+from gluoncv.model_zoo.fcn import _FCNHead
 # pylint: disable-all
 
 __all__ = ['DeepLabV3', 'get_deeplab', 'get_deeplab_resnet101_coco',
@@ -205,12 +205,12 @@ def get_deeplab(dataset='pascal_voc', backbone='resnet50', pretrained=False,
         'coco': 'coco',
         'citys': 'citys',
     }
-    from ..data import datasets
+    from gluoncv.data import datasets
     # infer number of classes
     model = DeepLabV3(datasets[dataset].NUM_CLASS, backbone=backbone, ctx=ctx, **kwargs)
     model.classes = datasets[dataset].CLASSES
     if pretrained:
-        from .model_store import get_model_file
+        from gluoncv.model_zoo.model_store import get_model_file
         model.load_parameters(get_model_file('deeplab_%s_%s'%(backbone, acronyms[dataset]),
                                              tag=pretrained, root=root), ctx=ctx)
     return model

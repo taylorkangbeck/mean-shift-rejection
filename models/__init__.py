@@ -85,6 +85,7 @@ from .cifar.cifarresnet import *
 from .cifar.cifarresnext import *
 from .cifar.cifarwideresnet import *
 from .deeplabv3 import *
+from .deeplabv3_plus import *
 from .deeplabv3b_plus import *
 from .xception import *
 
@@ -175,19 +176,9 @@ def get_model(name, **kwargs):
         'cifar_wideresnet40_8': cifar_wideresnet40_8,
         'cifar_resnext29_32x4d': cifar_resnext29_32x4d,
         'cifar_resnext29_16x64d': cifar_resnext29_16x64d,
-        'deeplab_resnet101_coco': get_deeplab_resnet101_coco,
-        'deeplab_resnet101_voc': get_deeplab_resnet101_voc,
-        'deeplab_resnet152_coco': get_deeplab_resnet152_coco,
-        'deeplab_resnet152_voc': get_deeplab_resnet152_voc,
-        'deeplab_resnet50_ade': get_deeplab_resnet50_ade,
-        'deeplab_resnet101_ade': get_deeplab_resnet101_ade,
-        'deeplab_resnest50_ade': get_deeplab_resnest50_ade,
-        'deeplab_resnest101_ade': get_deeplab_resnest101_ade,
-        'deeplab_resnest200_ade': get_deeplab_resnest200_ade,
-        'deeplab_resnest269_ade': get_deeplab_resnest269_ade,
-        'deeplab_resnet50_citys': get_deeplab_resnet50_citys,
-        'deeplab_resnet101_citys': get_deeplab_resnet101_citys,
-        'deeplab_v3b_plus_wideresnet_citys': get_deeplab_v3b_plus_wideresnet_citys,
+        'deeplab': get_deeplab,
+        'deeplabplus': get_deeplab_plus,
+        'deeplabplusv3b': get_deeplabv3b_plus,
         'xception': get_xcetption,
         'xception71': get_xcetption_71,
     }

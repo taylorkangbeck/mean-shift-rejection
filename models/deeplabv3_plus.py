@@ -3,8 +3,8 @@ from mxnet.gluon import nn
 from mxnet.context import cpu
 from mxnet.gluon.nn import HybridBlock
 from mxnet import gluon
-from .fcn import _FCNHead
-from .xception import get_xcetption
+from gluoncv.model_zoo.fcn import _FCNHead
+from gluoncv.model_zoo.xception import get_xcetption
 # pylint: disable-all
 
 __all__ = ['DeepLabV3Plus', 'get_deeplab_plus', 'get_deeplab_plus_xception_coco']
@@ -266,12 +266,13 @@ def get_deeplab_plus(dataset='pascal_voc', backbone='xception', pretrained=False
         'ade20k': 'ade',
         'coco': 'coco',
     }
-    from ..data import datasets
+    from gluoncv.data import datasets
     # infer number of classes
     model = DeepLabV3Plus(datasets[dataset].NUM_CLASS, backbone=backbone, ctx=ctx, **kwargs)
-    model.classes = datasets[dataset].CLASSES
+    # model.classes = datasets[dataset].CLASSES
+    model.classes = datasets[dataset].classes
     if pretrained:
-        from .model_store import get_model_file
+        from gluoncv.model_zoo.model_store import get_model_file
         model.load_parameters(get_model_file('deeplab_%s_%s'%(backbone, acronyms[dataset]),
                                              tag=pretrained, root=root), ctx=ctx)
     return model

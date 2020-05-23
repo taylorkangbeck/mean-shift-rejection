@@ -14,7 +14,7 @@ gluoncv.utils.check_version('0.6.0')
 from gluoncv.loss import *
 from gluoncv.utils import makedirs, LRScheduler, LRSequential
 from gluoncv.model_zoo.segbase import *
-from gluoncv.model_zoo import get_model
+from models import get_model
 from gluoncv.utils.parallel import *
 from gluoncv.data import get_segmentation_dataset
 
@@ -23,8 +23,8 @@ def parse_args():
     """Training Options for Semantic Segmentation Experiments"""
     parser = argparse.ArgumentParser(description='MXNet Gluon Semantic Segmentation')
     # model and dataset
-    parser.add_argument('--model', type=str, default='deeplab_resnet50_citys',
-                        help='model name (default: deeplab_resnet50_citys)')
+    parser.add_argument('--model', type=str, default='deeplabplus',
+                        help='model name (default: deeplabplus)')
     parser.add_argument('--model-zoo', type=str, default=None,
                         help='evaluating on model zoo model')
     parser.add_argument('--pretrained', action="store_true",
@@ -169,15 +169,15 @@ class Trainer(object):
                               base_size=args.base_size, crop_size=args.crop_size,
                               pretrained=args.pretrained)
         else:
-            model = get_segmentation_model(model=args.model, dataset=args.dataset,
+            model = get_model(args.model, dataset=args.dataset,
                                            backbone=args.backbone, norm_layer=args.norm_layer,
                                            norm_kwargs=args.norm_kwargs, aux=args.aux,
                                            base_size=args.base_size, crop_size=args.crop_size)
         # for resnest use only
-        from gluoncv.nn.dropblock import set_drop_prob
-        from functools import partial
-        apply_drop_prob = partial(set_drop_prob, 0.0)
-        model.apply(apply_drop_prob)
+        # from gluoncv.nn.dropblock import set_drop_prob
+        # from functools import partial
+        # apply_drop_prob = partial(set_drop_prob, 0.0)
+        # model.apply(apply_drop_prob)
 
         model.cast(args.dtype)
         logger.info(model)
