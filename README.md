@@ -1,4 +1,5 @@
 # mean-shift-rejection
+Code for the paper [Mean Shift Rejection: Training Deep Neural Networks Without Minibatch Statistics or Normalization](https://arxiv.org/abs/1911.13173)
 ## mxnet implementation
 `train_cifar100.py`
  * This is the entry point. Currently hard-coded for the cifar100 dataset (will automatically download to `~/.mxnet/datasets`), but should be swap out
